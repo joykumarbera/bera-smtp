@@ -1,0 +1,17 @@
+{
+    "name": "bera/bera-smtp",
+    "description": "a wordpress plugin",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Joy Kumar Bera",
+            "email": "joykumarbera@gmail.com"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Bera\\Smtp\\" : "src/"
+        }
+    }
+}
