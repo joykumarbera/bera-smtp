@@ -9,6 +9,8 @@ namespace Bera\Smtp;
  */
 class Plugin
 {
+    const BERA_SMTP_SETTING = 'bera_smtp_setting';
+
     /**
      * @var string $plugin_name
      */
@@ -31,9 +33,8 @@ class Plugin
      */
     public function run() {
         $admin_menu = new AdminMenu( $this );
-        
         $admin_menu->init();
-        ( new FormHandler( $admin_menu ) )->init();
+        ( new FormHandler( $this, $admin_menu ) )->init();
         ( new SmtpOverride( $admin_menu ) )->init();
     }
 
@@ -55,5 +56,26 @@ class Plugin
      */
     public function get_plugin_version() {
         return $this->plugin_version;
+    }
+
+    /**
+     * Get current settings data
+     * 
+     * @return mixed
+     */
+    public function get_settings_data() {
+        $current_settings_data = \get_option(self::BERA_SMTP_SETTING);
+
+        if( is_array( $current_settings_data ) && !empty( $current_settings_data ) ) {
+            foreach( $current_settings_data as $key => $value ) {
+                if( $key == 'username' || $key == 'password' ) {
+                    $current_settings_data[$key] = Helper::decrypt( $value );
+                } else {
+                    continue;
+                }
+            }
+        }
+
+        return $current_settings_data;
     }
 }

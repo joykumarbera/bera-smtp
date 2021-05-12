@@ -11,8 +11,7 @@ class AdminMenu
 {
     const SMTP_CONFIG_ACTION = 'bera_smtp_config_action';
     const EMAIL_TEST_ACTION = 'bera_email_test_action';
-    const BERA_SMTP_SETTING = 'bera_smtp_setting';
-
+ 
     /**
      * @var Bera\Smtp\Plugin $_plugin
      */
@@ -62,23 +61,12 @@ class AdminMenu
         }
     }
 
-    
-
     /**
      * Setup admistrative menus
      * 
      * @since 1.0.0
      */
     public function set_up_menus() {
-
-        add_options_page(
-            $this->get_title(),
-            $this->get_title(),
-            'manage_options',
-            $this->get_menu_slug(),
-            array($this, 'smtp_config_content')
-        );
-
         \add_menu_page(
             $this->get_title(),
             $this->get_title(),
@@ -88,8 +76,8 @@ class AdminMenu
 
         \add_submenu_page(
             $this->get_menu_slug(),
-            'Smtp Config',
-            'Smtp Config',
+            'SMTP Config',
+            'SMTP Config',
             'manage_options',
             $this->get_menu_slug(),
             array($this, 'smtp_config_content')  
@@ -115,10 +103,7 @@ class AdminMenu
         $plugin_name = $this->_plugin->get_plugin_name();
         $parts = \explode('-', $plugin_name);
 
-        return \implode(' ', array_map( function( $data ) {
-                return \ucfirst($data);
-            }, $parts)
-        );
+        return \implode(' ', array( ucfirst( $parts[0] ), strtoupper( $parts[1] ) ));
     }
 
     /**
@@ -148,38 +133,13 @@ class AdminMenu
     }
 
     /**
-     * Get current settings data
-     * 
-     * @return mixed
-     */
-    public function get_settings_data() {
-        $current_settings_data = \get_option(self::BERA_SMTP_SETTING);
-
-        if( is_array( $current_settings_data ) && !empty( $current_settings_data ) ) {
-            foreach( $current_settings_data as $key => $value ) {
-                if( $key == 'username' || $key == 'password' ) {
-                    $current_settings_data[$key] = Helper::decrypt( $value );
-                } else {
-                    continue;
-                }
-            }
-        }
-
-        return $current_settings_data;
-    }
-
-    /**
      * Load smtp config menu content
      * 
      * @since 1.0.0
      */
     public function smtp_config_content() {
-        $current_settings_data = $this->get_settings_data();
+        $current_settings_data = $this->_plugin->get_settings_data();
         
-        echo '<pre>';
-        print_r($current_settings_data);
-        echo '</pre>';
-
         return Helper::load_template(
             'smtp-config',
             [

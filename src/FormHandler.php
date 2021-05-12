@@ -5,11 +5,17 @@ namespace Bera\Smtp;
 class FormHandler 
 {
     /**
+     * @var Plugin $_plugin
+     */
+    private $_plugin;
+
+    /**
      * @var AdminMenu $_admin_menu
      */
     private $_admin_menu;
 
-    public function __construct( $admin_menu ) {
+    public function __construct( $plugin, $admin_menu ) {
+        $this->_plugin = $plugin;
         $this->_admin_menu = $admin_menu;
     }
 
@@ -40,28 +46,29 @@ class FormHandler
                 $auth = sanitize_text_field( $settings_data['auth'] );
                 $port = $settings_data['port'];
                 $encryption = sanitize_text_field( $settings_data['encryption'] );
-                $from = sanitize_email( $settings_data['from'] );
-                $from_name = sanitize_text_field( $settings_data['from_name'] );
-
+               
                 \update_option(
-                    $this->_admin_menu::BERA_SMTP_SETTING,
+                    $this->_plugin::BERA_SMTP_SETTING,
                     array(
                         'host' => $host,
                         'username' => Helper::encrypt( $username ),
                         'password' => Helper::encrypt( $password ),
                         'auth' => $auth,
                         'port' => $port,
-                        'encryption' => $encryption,
-                        'from' => $from,
-                        'from_name' => $from_name
+                        'encryption' => $encryption
                     )
                 );
 
-                Helper::redirect(
-                    array(
-                        'page' => $this->_admin_menu->get_menu_slug(),
-                        'bera_smtp_notices' => 'Settings saved successfully!',
-                        'notice_class' => 'notice-success'
+                \wp_redirect(
+                    esc_url_raw(
+                        add_query_arg(
+                            array(
+                                'page' => $this->_admin_menu->get_menu_slug(),
+                                'bera_smtp_notices' => 'Settings saved successfully!',
+                                'notice_class' => 'notice-success'
+                            ),
+                            admin_url('admin.php')
+                        )
                     )
                 );
             }
@@ -99,8 +106,15 @@ class FormHandler
                         'notice_class' => 'notice-error'
                     );
                 }
-                
-                Helper::redirect( $query_args );
+
+                \wp_redirect(
+                    esc_url_raw(
+                        add_query_arg(
+                            $query_args,
+                            admin_url('admin.php')
+                        )
+                    )
+                );
             }
         }
     }
