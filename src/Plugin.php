@@ -35,7 +35,7 @@ class Plugin
         $admin_menu = new AdminMenu( $this );
         $admin_menu->init();
         ( new FormHandler( $this, $admin_menu ) )->init();
-        ( new SmtpOverride( $admin_menu ) )->init();
+        ( new SmtpOverride( $this ) )->init();
     }
 
     /**

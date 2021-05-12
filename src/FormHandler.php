@@ -2,6 +2,11 @@
 
 namespace Bera\Smtp;
 
+/**
+ * class FormHandler
+ * 
+ * @package Bera\Smtp
+ */
 class FormHandler 
 {
     /**
@@ -39,6 +44,24 @@ class FormHandler
         ) {
             if( isset($_POST['bera_smtp']) ) {
                 $settings_data = $_POST['bera_smtp'];
+
+                try {
+                    $this->validate_data( $settings_data );
+                } catch ( \Exception $e ) {
+                    \wp_redirect(
+                        esc_url_raw(
+                            add_query_arg(
+                                array(
+                                    'page' => $this->_admin_menu->get_menu_slug(),
+                                    'bera_smtp_notices' => $e->getMessage(),
+                                    'notice_class' => 'notice-error'
+                                ),
+                                admin_url('admin.php')
+                            )
+                        )
+                    );
+                    exit;
+                }
 
                 $host = sanitize_text_field($settings_data['host']);
                 $username = sanitize_text_field( $settings_data['username'] );
@@ -91,17 +114,20 @@ class FormHandler
                     $email, 
                     'A smtp configaration test',
                     'Looks like everything is ok. now you can send email using SMTP in WP',
+                    [
+                        'From: kusjoybera@gmail.com'
+                    ]
                 );
 
                 if( $is_ok ) {
                     $query_args = array(
-                        'page' => 'bera-easy-smtp-email-test',
+                        'page' => $this->_admin_menu->get_email_test_menu_slug(),
                         'bera_smtp_notices' => 'Email send successfully!',
                         'notice_class' => 'notice-success'
                     );
                 } else {
                     $query_args = array(
-                        'page' => 'bera-easy-smtp-email-test',
+                        'page' => $this->_admin_menu->get_email_test_menu_slug(),
                         'bera_smtp_notices' => 'Email send failed.',
                         'notice_class' => 'notice-error'
                     );
@@ -115,6 +141,30 @@ class FormHandler
                         )
                     )
                 );
+            }
+        }
+    }
+
+    /**
+     * Validates form data
+     * 
+     * @param array $data
+     * @throws Exception
+     */
+    private function validate_data( $data ) {
+        if( empty( $data ) ) {
+            throw new \Exception('Data can\'t be empty.');
+        }
+
+        if( isset( $data['auth'] ) && !empty( $data['auth'] ) ) {
+            if( !in_array( $data['auth'], [ 'yes', 'no' ] ) ) {
+                throw new \Exception('Wrong value for auth. please try again');
+            }
+        }
+
+        if( isset( $data['encryption'] ) && !empty( $data['encryption'] ) ) {
+            if( !in_array( $data['encryption'], [ 'tls', 'ssl', 'none' ] ) ) {
+                throw new \Exception('Wrong value for encryption. please try again');
             }
         }
     }

@@ -1,0 +1,1 @@
+# A wordpress plugin for sending emails via SMTP

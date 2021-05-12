@@ -88,7 +88,7 @@ class AdminMenu
             'Email Test',
             'Email Test',
             'manage_options',
-            $this->get_menu_slug() . '-email-test',
+            $this->get_email_test_menu_slug(),
             array($this, 'email_menu_content')  
         );
     }
@@ -110,16 +110,22 @@ class AdminMenu
      * Get menu slug
      * 
      * @return string
-     * @since 1.0.0
      */
     public function get_menu_slug() {
         return $this->_plugin->get_plugin_name();
     }
 
     /**
-     * Load email test menu content
+     * Get email test menu slug
      * 
-     * @since 1.0.0
+     * @return string
+     */
+    public function get_email_test_menu_slug() {
+        return $this->get_menu_slug() . '-email-test';
+    }
+
+    /**
+     * Load email test menu content
      */
     public function email_menu_content() {
         return Helper::load_template(
@@ -134,8 +140,6 @@ class AdminMenu
 
     /**
      * Load smtp config menu content
-     * 
-     * @since 1.0.0
      */
     public function smtp_config_content() {
         $current_settings_data = $this->_plugin->get_settings_data();
