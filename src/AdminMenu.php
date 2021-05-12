@@ -21,7 +21,7 @@ class AdminMenu
     /**
      * @var array $_form_fields
      */
-    private $_form_fields;
+    public $_form_fields;
 
     public function __construct( $plugin ) {
         $this->_plugin = $plugin;
@@ -45,59 +45,6 @@ class AdminMenu
     public function init() {
         \add_action('admin_notices', array($this, 'show_admin_notices'));
         \add_action('admin_menu', array($this, 'set_up_menus') );
-        \add_action('admin_post_' . self::SMTP_CONFIG_ACTION, array($this, 'smtp_config_form_handler') );
-        \add_action('admin_post_' . self::EMAIL_TEST_ACTION, array($this, 'email_test_form_handler') );
-    }
-
-    /**
-     * Send a dummy email using the config
-     * 
-     * @since 1.0.0
-     */
-    public function email_test_form_handler() {
-        if( isset( $_POST[$this->_form_fields['email_test_form']['nounce_name']] ) &&
-            \wp_verify_nonce( 
-                $_POST[$this->_form_fields['email_test_form']['nounce_name']], 
-                $this->_form_fields['email_test_form']['action'] )
-        ) {
-            if( isset( $_POST['bera_test_email'] ) && !empty( $_POST['bera_test_email'] ) ) {
-                $email = sanitize_email( $_POST['bera_test_email'] );
-
-                $is_ok = \wp_mail(
-                    $email, 
-                    'A smtp configaration test',
-                    'Looks like everything is ok. now you can send email using SMTP in WP',
-                );
-
-                if( $is_ok ) {
-                    \wp_redirect(
-                        esc_url_raw(
-                            add_query_arg(
-                               array(
-                                    'page' => 'bera-easy-smtp-email-test',
-                                    'bera_smtp_notices' => 'Email send successfully!',
-                                    'notice_class' => 'notice-success'
-                               ),
-                                admin_url('admin.php')
-                            )
-                        )
-                    );
-                } else {
-                    \wp_redirect(
-                        esc_url_raw(
-                            add_query_arg(
-                               array(
-                                    'page' => 'bera-easy-smtp-email-test',
-                                    'bera_smtp_notices' => 'Email send failed.',
-                                    'notice_class' => 'notice-error'
-                               ),
-                                admin_url('admin.php')
-                            )
-                        )
-                    );
-                }
-            }
-        }
     }
 
     /**
@@ -115,59 +62,7 @@ class AdminMenu
         }
     }
 
-    /**
-     * Handle smtp config form
-     * 
-     * @since 1.0.0
-     */
-    public function smtp_config_form_handler() {
-
-        if( isset( $_POST[$this->_form_fields['smtp_form']['nounce_name']] ) &&
-            \wp_verify_nonce( 
-                $_POST[$this->_form_fields['smtp_form']['nounce_name']], 
-                $this->_form_fields['smtp_form']['action'] )
-        ) {
-            if( isset($_POST['bera_smtp']) ) {
-                $settings_data = $_POST['bera_smtp'];
-
-                $host = sanitize_text_field($settings_data['host']);
-                $username = sanitize_text_field( $settings_data['username'] );
-                $password = $settings_data['password'];
-                $auth = sanitize_text_field( $settings_data['auth'] );
-                $port = $settings_data['port'];
-                $encryption = sanitize_text_field( $settings_data['encryption'] );
-                $from = sanitize_email( $settings_data['from'] );
-                $from_name = sanitize_text_field( $settings_data['from_name'] );
-
-                \update_option(
-                    self::BERA_SMTP_SETTING,
-                    array(
-                        'host' => $host,
-                        'username' => Helper::encrypt( $username ),
-                        'password' => Helper::encrypt( $password ),
-                        'auth' => $auth,
-                        'port' => $port,
-                        'encryption' => $encryption,
-                        'from' => $from,
-                        'from_name' => $from_name
-                    )
-                );
-
-                \wp_redirect(
-                    esc_url_raw(
-                        add_query_arg(
-                           array(
-                                'page' => $this->get_menu_slug(),
-                                'bera_smtp_notices' => 'Settings saved successfully!',
-                                'notice_class' => 'notice-success'
-                           ),
-                            admin_url('admin.php')
-                        )
-                    )
-                );
-            }
-        }
-    }
+    
 
     /**
      * Setup admistrative menus
@@ -232,7 +127,7 @@ class AdminMenu
      * @return string
      * @since 1.0.0
      */
-    private function get_menu_slug() {
+    public function get_menu_slug() {
         return $this->_plugin->get_plugin_name();
     }
 
@@ -280,7 +175,11 @@ class AdminMenu
      */
     public function smtp_config_content() {
         $current_settings_data = $this->get_settings_data();
-       
+        
+        echo '<pre>';
+        print_r($current_settings_data);
+        echo '</pre>';
+
         return Helper::load_template(
             'smtp-config',
             [

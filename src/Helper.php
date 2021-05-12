@@ -38,4 +38,28 @@ class Helper
     public static function decrypt( $data ) {
         return \base64_decode( $data );
     }
+
+    /**
+     * Custom redirect
+     * 
+     * @param array $query_args
+     */
+    public static function redirect( $query_args = [], $base_url = '' ) {
+
+        if( empty( $base_url ) ) {
+            
+        }
+        else {
+            if( !empty( $query_args ) ) {
+                \wp_redirect(
+                    esc_url_raw(
+                        add_query_arg(
+                            $query_args,
+                            admin_url('admin.php')
+                        )
+                    )
+                );
+            }
+        }
+    }
 }

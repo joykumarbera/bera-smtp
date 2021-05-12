@@ -4,7 +4,7 @@
 
     <form action="<?php echo $form_action ?>" method="POST">
         <input type="hidden" name="action" value="<?php echo $action ?>">
-        <?php //wp_nounce_field() ?>
+        <?php wp_nonce_field( $action, $nounce_name ) ?>
         <table class="form-table" role="presentation">
             <tbody>
                 <tr>
@@ -80,5 +80,6 @@
                 </tr>
             </tbody>
         </table>
+        <?php submit_button() ?>
     </form>
 </div>
